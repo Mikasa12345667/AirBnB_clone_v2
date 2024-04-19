@@ -1,28 +1,25 @@
 #!/usr/bin/python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Apr  19 12:48:23 2024
-
-@author: Gabriel Odera
-"""
+""" Starts a Flask web app """
+from flask import Flask, render_template
 from models import storage
 from models.state import State
-from flask import Flask, render_template
+
 app = Flask(__name__)
+app.url_map.strict_slashes = False
 
 
 @app.teardown_appcontext
-def appcontext_teardown(self):
-    """use storage for fetching data from the storage engine
-    """
+def dispose(exception):
+    """ Remove current session """
     storage.close()
 
 
-@app.route('/states_list', strict_slashes=False)
-def state_info():
-    """Display a HTML page inside the tag BODY"""
-    return render_template('7-states_list.html',
-                           states=storage.all(State))
+@app.route('/states_list')
+def states():
+    """ Display list of all the states """
+    states = storage.all(State)
+    states_list = list(states.values())
+    return render_template('7-states_list.html', states=states_list)
 
 
 if __name__ == '__main__':
